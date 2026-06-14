@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Hacker Browser — Nova Tab",
+  "short_name": "Hacker Tab",
+  "version": "3.0.0",
+  "description": "Hacker-themed new tab with live backgrounds, bookmarks bar, combined clock+weather, and quick links.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["bookmarks"],
+  "host_permissions": [
+    "https://api.open-meteo.com/*",
+    "https://nominatim.openstreetmap.org/*",
+    "https://www.google.com/*"
+  ]
+}

@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GlowLux — Cosmetics & Jewellery</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c9a96e;--gold-l:#e8d5a3;--rose:#b76e79;--blk:#080808;
+  --dark:#0f0f0f;--card:#121212;--brd:rgba(201,169,110,.09);
+  --txt:#e8e0d5;--mut:#6e6560;
+}
+html{scroll-behavior:smooth}
+body{background:var(--blk);color:var(--txt);font-family:'Inter',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+/* ─── CURSOR ─── */
+#cur,#cur2{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cur{width:10px;height:10px;background:var(--gold);transition:width .25s,height .25s,background .25s}
+#cur2{width:38px;height:38px;border:1px solid rgba(201,169,110,.45);transition:width .3s,height .3s}
+body.cursor-lg #cur{width:18px;height:18px}
+body.cursor-lg #cur2{width:64px;height:64px}
+
+/* ─── LOADER ─── */
+#loader{position:fixed;inset:0;background:var(--blk);z-index:10000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity .8s,visibility .8s}
+#loader.out{opacity:0;visibility:hidden}
+.ld-logo{font-family:'Cormorant Garamond',serif;font-size:3rem;letter-spacing:.45em;color:var(--gold);animation:upIn .9s ease forwards}
+.ld-bar{width:180px;height:1px;background:#1c1c1c;overflow:hidden;position:relative}
+.ld-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:slide 1.5s ease .3s forwards;transform:translateX(-100%)}
+@keyframes slide{to{transform:translateX(100%)}}
+@keyframes upIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SCROLL PROGRESS ─── */
+#prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--rose));z-index:200;width:0;pointer-events:none}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:26px 64px;display:flex;align-items:center;justify-content:space-between;transition:padding .4s,background .4s}
+nav.stuck{background:rgba(8,8,8,.93);backdrop-filter:blur(22px);padding:16px 64px;border-bottom:1px solid var(--brd)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;letter-spacing:.28em;color:var(--gold);text-decoration:none;font-weight:300}
+.nav-links{display:flex;gap:40px;list-style:none}
+.nav-links a{color:var(--txt);text-decoration:none;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.65;transition:opacity .3s,color .3s}
+.nav-links a:hover{opacity:1;color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:20px}
+.cart-btn{background:none;border:1px solid var(--brd);color:var(--gold);padding:10px 22px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;cursor:none;transition:background .3s,border-color .3s;position:relative}
+.cart-btn:hover{background:rgba(201,169,110,.08);border-color:var(--gold)}
+.cart-count{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:var(--rose);border-radius:50%;font-size:.6rem;display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* ─── CART SIDEBAR ─── */
+#cart-side{position:fixed;top:0;right:0;width:400px;height:100vh;background:#0d0d0d;border-left:1px solid var(--brd);z-index:1000;transform:translateX(100%);transition:transform .5s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}
+#cart-side.open{transform:translateX(0)}
+.cart-head{padding:28px 32px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.cart-head h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300}
+.cart-close{background:none;border:none;color:var(--mut);font-size:1.4rem;cursor:none;transition:color .3s}
+.cart-close:hover{color:var(--txt)}
+.cart-items{flex:1;overflow-y:auto;padding:24px 32px;display:flex;flex-direction:column;gap:20px}
+.cart-item{display:flex;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--brd)}
+.cart-item-img{width:70px;height:70px;background:linear-gradient(135deg,#1a1410,#2a1f14);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.cart-item-info{flex:1}
+.cart-item-name{font-family:'Cormorant Garamond',serif;font-size:1rem;margin-bottom:4px}
+.cart-item-price{font-size:.82rem;color:var(--gold)}
+.cart-item-qty{display:flex;align-items:center;gap:10px;margin-top:10px}
+.qty-btn{width:26px;height:26px;border:1px solid var(--brd);background:none;color:var(--txt);cursor:none;font-size:.9rem;transition:border-color .3s}
+.qty-btn:hover{border-color:var(--gold);color:var(--gold)}
+.qty-val{font-size:.82rem;min-width:20px;text-align:center}
+.cart-remove{background:none;border:none;color:var(--mut);cursor:none;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;margin-left:auto;transition:color .3s}
+.cart-remove:hover{color:var(--rose)}
+.cart-foot{padding:24px 32px;border-top:1px solid var(--brd)}
+.cart-total{display:flex;justify-content:space-between;margin-bottom:20px}
+.cart-total span{font-size:.8rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase}
+.cart-total strong{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold)}
+.checkout-btn{width:100%;padding:16px;background:var(--gold);color:var(--blk);border:none;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;cursor:none;transition:background .3s}
+.checkout-btn:hover{background:var(--gold-l)}
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+.cart-overlay.show{opacity:1;visibility:visible}
+
+/* ─── QUICK VIEW MODAL ─── */
+#qv-modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:40px;opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+#qv-modal.open{opacity:1;visibility:visible}
+.qv-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px)}
+.qv-box{position:relative;background:#0e0e0e;border:1px solid var(--brd);width:100%;max-width:800px;display:grid;grid-template-columns:1fr 1fr;max-height:90vh;overflow:hidden;z-index:1}
+.qv-img{background:linear-gradient(135deg,#1a1410 0%,#2a1f14 50%,#1a0f1a 100%);display:flex;align-items:center;justify-content:center;font-size:7rem;min-height:420px;position:relative}
+.qv-img::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(201,169,110,.18),transparent 65%);animation:qvPulse 3s ease-in-out infinite}
+@keyframes qvPulse{0%,100%{opacity:.5}50%{opacity:1}}
+.qv-info{padding:48px 40px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.qv-cat{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.qv-name{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;line-height:1.2}
+.qv-price{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--gold)}
+.qv-desc{font-size:.85rem;color:var(--mut);line-height:1.85}
+.qv-swatches{display:flex;flex-direction:column;gap:10px}
+.qv-swatches label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+.swatch-row{display:flex;gap:8px}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:none;border:2px solid transparent;transition:border-color .3s,transform .3s}
+.swatch:hover,.swatch.active{border-color:var(--gold);transform:scale(1.15)}
+.qv-actions{display:flex;gap:10px;margin-top:8px}
+.qv-add{flex:1;padding:14px;background:var(--gold);color:var(--blk);border:none;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;cursor:none;transition:background .3s}
+.qv-add:hover{background:var(--gold-l)}
+.qv-wish{width:44px;height:44px;border:1px solid var(--brd);background:none;color:var(--mut);font-size:1.1rem;cursor:none;transition:all .3s}
+.qv-wish:hover{border-color:var(--rose);color:var(--rose)}
+.qv-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.5);border:1px solid var(--brd);color:var(--mut);width:36px;height:36px;border-radius:50%;cursor:none;font-size:1rem;transition:all .3s;z-index:2}
+.qv-close:hover{border-color:var(--gold);color:var(--gold)}
+.qv-stars{display:flex;gap:4px;font-size:.8rem;color:var(--gold)}
+
+/* ─── HERO ─── */
+#hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,169,110,.07) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 70%,rgba(183,110,121,.05) 0%,transparent 60%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,169,110,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,169,110,.03) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 0%,transparent 100%)}
+#particles{position:absolute;inset:0;overflow:hidden}
+.p{position:absolute;border-radius:50%;animation:pfloat var(--d) ease-in-out infinite var(--dl)}
+@keyframes pfloat{0%{opacity:0;transform:translateY(100vh) scale(0)}10%{opacity:.5}90%{opacity:.15}100%{opacity:0;transform:translateY(-30px) scale(1)}}
+.bg-word{position:absolute;font-family:'Cormorant Garamond',serif;font-size:22vw;font-weight:300;color:transparent;-webkit-text-stroke:1px rgba(201,169,110,.055);letter-spacing:.05em;user-select:none;animation:bgDrift 18s ease-in-out infinite;pointer-events:none}
+@keyframes bgDrift{0%,100%{transform:perspective(900px) rotateX(2deg) rotateY(-3deg)}50%{transform:perspective(900px) rotateX(-2deg) rotateY(3deg) scale(1.02)}}
+.hero-c{position:relative;z-index:2;text-align:center;max-width:920px;padding:0 40px}
+.eyebrow{font-size:.68rem;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:28px;animation:upIn .8s ease forwards;opacity:0}
+.h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.5rem,9vw,8rem);font-weight:300;line-height:.95;letter-spacing:-.01em;animation:upIn .8s ease .2s forwards;opacity:0}
+.h1 em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:.85rem;letter-spacing:.12em;color:var(--mut);margin-top:26px;line-height:1.9;animation:upIn .8s ease .4s forwards;opacity:0}
+.hero-btns{margin-top:48px;display:flex;gap:20px;justify-content:center;animation:upIn .8s ease .6s forwards;opacity:0}
+.btn-g{padding:16px 44px;background:var(--gold);color:var(--blk);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border:none;cursor:none;transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+.btn-g::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);transform:translateX(-100%);transition:transform .4s}
+.btn-g:hover::after{transform:translateX(0)}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 20px 50px rgba(201,169,110,.22)}
+.btn-o{padding:16px 44px;border:1px solid rgba(201,169,110,.35);color:var(--txt);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:none;transition:border-color .3s,color .3s,transform .3s}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-2px)}
+.scroll-ind{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;animation:upIn .8s ease 1s forwards;opacity:0}
+.scroll-ind span{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mut)}
+.scrl-ln{width:1px;height:50px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrlP 2s ease-in-out infinite}
+@keyframes scrlP{0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.2)}}
+
+/* ─── MARQUEE ─── */
+.mq-wrap{padding:28px 0;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);overflow:hidden}
+.mq-track{display:flex;gap:56px;width:max-content;animation:mq 28s linear infinite}
+.mq-wrap:hover .mq-track{animation-play-state:paused}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mq-i{display:flex;align-items:center;gap:22px;font-family:'Cormorant Garamond',serif;font-size:1.05rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);white-space:nowrap}
+.mq-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* ─── REVEAL ─── */
+.rv{opacity:0;transform:translateY(44px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.rv.on{opacity:1;transform:translateY(0)}
+.rvl{opacity:0;transform:translateX(-55px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.rvl.on{opacity:1;transform:translateX(0)}
+.rvr{opacity:0;transform:translateX(55px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1)}
+.rvr.on{opacity:1;transform:translateX(0)}
+
+/* ─── SECTION LABELS ─── */
+.lbl{font-size:.63rem;letter-spacing:.38em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.2rem);font-weight:300;line-height:1.1}
+.stitle em{font-style:italic;color:var(--gold)}
+
+/* ─── FEATURED ─── */
+#featured{padding:120px 64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.feat-vis{position:relative;aspect-ratio:3/4}
+.feat-card{width:100%;height:100%;background:var(--card);border:1px solid var(--brd);overflow:hidden;position:relative;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.feat-card:hover{transform:perspective(900px) rotateY(-6deg) rotateX(3deg) scale(1.02)}
+.feat-art{width:100%;height:100%;position:relative;overflow:hidden}
+
+/* CSS ART — Palette */
+.art-palette{background:linear-gradient(145deg,#1a1208 0%,#291a0d 40%,#1a0c18 100%);display:flex;align-items:center;justify-content:center;position:relative}
+.art-palette::before{content:'';position:absolute;width:240px;height:240px;background:conic-gradient(from 0deg,#c9a96e,#e8d5a3,#b76e79,#d4a0a8,#c9a96e);border-radius:50%;opacity:.12;animation:rotatePalette 12s linear infinite}
+@keyframes rotatePalette{to{transform:rotate(360deg)}}
+.art-palette::after{content:'✦';font-size:6rem;color:rgba(201,169,110,.35);animation:spinStar 15s linear infinite;position:relative;z-index:1;filter:drop-shadow(0 0 30px rgba(201,169,110,.5))}
+@keyframes spinStar{to{transform:rotate(360deg)}}
+.feat-tag{position:absolute;top:24px;left:24px;background:var(--gold);color:var(--blk);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;padding:6px 14px;z-index:2}
+.feat-badge{position:absolute;bottom:24px;right:24px;width:70px;height:70px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:.52rem;letter-spacing:.1em;text-align:center;color:var(--gold);text-transform:uppercase;line-height:1.5;animation:rotBadge 10s linear infinite;z-index:2}
+@keyframes rotBadge{to{transform:rotate(360deg)}}
+.feat-content{}
+.feat-content .lbl{margin-bottom:24px}
+.feat-content .stitle{margin-bottom:26px}
+.feat-desc{font-size:.88rem;line-height:1.9;color:var(--mut);margin-bottom:36px}
+.feat-meta{display:flex;align-items:center;gap:24px;margin-bottom:36px}
+.feat-price{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:var(--gold)}
+.feat-old{font-size:1rem;color:var(--mut);text-decoration:line-through}
+.feat-shades{display:flex;gap:8px}
+.shade{width:22px;height:22px;border-radius:50%;cursor:none;border:2px solid transparent;transition:border-color .3s,transform .3s}
+.shade:hover,.shade.active{border-color:var(--gold);transform:scale(1.2)}
+.feat-btns{display:flex;gap:14px}
+
+/* ─── STATS ─── */
+#stats{padding:70px 64px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.stat{text-align:center;padding:36px 20px;border-right:1px solid var(--brd)}
+.stat:last-child{border-right:none}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:3.4rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:6px}
+.stat-l{font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mut)}
+
+/* ─── PRODUCTS ─── */
+#products{padding:110px 64px}
+.prod-head{text-align:center;margin-bottom:64px}
+.prod-head .stitle{margin-bottom:28px}
+.filters{display:flex;gap:8px;justify-content:center}
+.fb{padding:9px 22px;border:1px solid rgba(201,169,110,.18);background:transparent;color:var(--mut);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;cursor:none;transition:all .3s}
+.fb.on,.fb:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.06)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.pc{background:var(--card);border:1px solid var(--brd);transition:border-color .4s;cursor:none;position:relative;overflow:hidden}
+.pc:hover{border-color:rgba(201,169,110,.22)}
+.pc:hover .pimg-inner{transform:scale(1.06) translateY(-5px)}
+.pc:hover .pac{opacity:1;transform:translateY(0)}
+.pc:hover .pglow{opacity:1}
+.pimg{aspect-ratio:1;overflow:hidden;position:relative}
+
+/* Product artwork per card */
+.art1{background:linear-gradient(150deg,#1a0e0c 0%,#280f0a 60%,#1a0a14 100%)}
+.art2{background:linear-gradient(150deg,#0c0e1a 0%,#0a1428 60%,#1a0f0a 100%)}
+.art3{background:linear-gradient(150deg,#0a1a0e 0%,#0d2814 60%,#1a140a 100%)}
+.art4{background:linear-gradient(150deg,#1a0a1a 0%,#280a28 60%,#0a0e1a 100%)}
+.art5{background:linear-gradient(150deg,#1a0a0e 0%,#280814 60%,#0a1a14 100%)}
+.art6{background:linear-gradient(150deg,#0e1a0a 0%,#141a08 60%,#0a0e1a 100%)}
+
+.pimg-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:transform .6s cubic-bezier(.16,1,.3,1);position:relative}
+.pico{font-size:3.4rem;filter:drop-shadow(0 0 22px rgba(201,169,110,.45));animation:pflt var(--pflt,4s) ease-in-out infinite}
+@keyframes pflt{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-9px) rotate(3deg)}}
+.pglow{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(201,169,110,.13),transparent 68%);opacity:0;transition:opacity .4s}
+.pbadge{position:absolute;top:14px;left:14px;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px}
+.badge-new{background:var(--rose);color:#fff}
+.badge-lim{background:var(--gold);color:var(--blk)}
+.badge-sale{background:rgba(255,255,255,.12);color:var(--txt);border:1px solid rgba(255,255,255,.2)}
+.pac{position:absolute;bottom:0;left:0;right:0;background:rgba(8,8,8,.92);padding:12px;display:flex;gap:8px;opacity:0;transform:translateY(8px);transition:all .32s}
+.padd{flex:1;padding:10px;background:var(--gold);color:var(--blk);border:none;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;cursor:none;transition:background .3s}
+.padd:hover{background:var(--gold-l)}
+.pqv{flex:none;width:40px;background:rgba(201,169,110,.08);color:var(--gold);border:1px solid rgba(201,169,110,.2);font-size:.7rem;cursor:none;transition:all .3s}
+.pqv:hover{background:rgba(201,169,110,.18)}
+.pwish{flex:none;width:40px;background:transparent;color:var(--mut);border:1px solid var(--brd);cursor:none;font-size:.9rem;transition:all .3s}
+.pwish:hover{color:var(--rose);border-color:var(--rose)}
+.pinfo{padding:20px}
+.pcat{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.pname{font-family:'Cormorant Garamond',serif;font-size:1.2rem;margin-bottom:12px}
+.pfoot{display:flex;align-items:center;justify-content:space-between}
+.pprice{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--gold)}
+.pstars{display:flex;gap:3px;font-size:.7rem;color:var(--gold)}
+.pswatches{display:flex;gap:6px;margin-top:10px}
+.psw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.1);cursor:none;transition:transform .3s}
+.psw:hover{transform:scale(1.3)}
+
+/* ─── 3D RING SHOWCASE ─── */
+#ring3d{padding:120px 64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;overflow:hidden}
+.ring-scene{height:520px;display:flex;align-items:center;justify-content:center;perspective:1000px;position:relative}
+.ring-orbit{position:relative;width:300px;height:300px;transform-style:preserve-3d;animation:orbitRing 18s linear infinite}
+@keyframes orbitRing{to{transform:rotateY(360deg) rotateX(15deg)}}
+.ring-gem{position:absolute;width:60px;height:60px;background:radial-gradient(circle at 35% 35%,#e8d5a3,#c9a96e,#8a6a30);border-radius:50%;transform-style:preserve-3d;box-shadow:0 0 30px rgba(201,169,110,.6),inset 0 0 20px rgba(255,255,255,.3)}
+.ring-gem:nth-child(1){top:0;left:50%;transform:translateX(-50%) translateZ(150px)}
+.ring-gem:nth-child(2){top:50%;right:0;transform:translateY(-50%) rotateY(90deg) translateZ(150px)}
+.ring-gem:nth-child(3){bottom:0;left:50%;transform:translateX(-50%) rotateY(180deg) translateZ(150px)}
+.ring-gem:nth-child(4){top:50%;left:0;transform:translateY(-50%) rotateY(270deg) translateZ(150px)}
+.ring-gem:nth-child(5){top:20%;right:15%;transform:rotateX(45deg) rotateY(45deg) translateZ(150px)}
+.ring-gem:nth-child(6){bottom:20%;left:15%;transform:rotateX(-45deg) rotateY(-45deg) translateZ(150px)}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;background:radial-gradient(circle at 35% 35%,rgba(232,213,163,.3),rgba(201,169,110,.1),transparent);border:1px solid rgba(201,169,110,.3);border-radius:50%;animation:centerPulse 3s ease-in-out infinite;box-shadow:0 0 60px rgba(201,169,110,.2)}
+@keyframes centerPulse{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 60px rgba(201,169,110,.2)}50%{transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 100px rgba(201,169,110,.4)}}
+.ring-glow{position:absolute;inset:-60px;background:radial-gradient(circle at 50% 50%,rgba(201,169,110,.06),transparent 60%);border-radius:50%;animation:glowPulse 4s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+.ring-info .lbl{margin-bottom:20px}
+.ring-info .stitle{margin-bottom:24px}
+.ring-desc{font-size:.88rem;color:var(--mut);line-height:1.9;margin-bottom:32px}
+.ring-specs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:36px}
+.rspec{background:#111;border:1px solid var(--brd);padding:16px;text-align:center}
+.rspec-val{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold);margin-bottom:4px}
+.rspec-lbl{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+
+/* ─── LOOKBOOK ─── */
+#lookbook{padding:110px 0}
+.lb-head{text-align:center;padding:0 64px;margin-bottom:72px}
+.lb-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:3px;padding:0 64px}
+.lb-item{position:relative;overflow:hidden;cursor:none}
+.lb-item:first-child{grid-row:1/3;min-height:600px}
+.lb-item:not(:first-child){min-height:295px}
+.lb-bg{position:absolute;inset:0;transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.lb-item:hover .lb-bg{transform:scale(1.08)}
+.lb-b1{background:linear-gradient(145deg,#1a0e14 0%,#2a1228 100%)}
+.lb-b2{background:linear-gradient(145deg,#0e1a14 0%,#142a1e 100%)}
+.lb-b3{background:linear-gradient(145deg,#1a140a 0%,#2a1e0a 100%)}
+.lb-b4{background:linear-gradient(145deg,#0a0e1a 0%,#0a1428 100%)}
+.lb-b5{background:linear-gradient(145deg,#1a0a0a 0%,#2a0a14 100%)}
+.lb-ico{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);font-size:4rem;filter:drop-shadow(0 0 30px rgba(201,169,110,.45));transition:transform .5s;z-index:1}
+.lb-item:hover .lb-ico{transform:translate(-50%,-60%) scale(1.1)}
+.lb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.85) 0%,transparent 50%);z-index:2}
+.lb-info{position:absolute;bottom:0;left:0;right:0;padding:28px;z-index:3}
+.lb-tag{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.lb-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300}
+.lb-shop{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mut);margin-top:6px;display:flex;align-items:center;gap:8px;transition:color .3s}
+.lb-item:hover .lb-shop{color:var(--gold)}
+.lb-shop::after{content:'→';transition:transform .3s}
+.lb-item:hover .lb-shop::after{transform:translateX(4px)}
+
+/* ─── CATEGORIES ─── */
+#categories{padding:110px 0}
+.cat-head{text-align:center;padding:0 64px;margin-bottom:72px}
+.cat-track{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:0 64px}
+.cp{aspect-ratio:2/3;position:relative;overflow:hidden;cursor:none}
+.cp-bg{position:absolute;inset:0;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.cp:hover .cp-bg{transform:scale(1.1)}
+.cg1 .cp-bg{background:linear-gradient(160deg,#1a0e0a 0%,#2d1810 50%,#1a0a14 100%)}
+.cg2 .cp-bg{background:linear-gradient(160deg,#0a0f1a 0%,#101828 50%,#1a0f0a 100%)}
+.cg3 .cp-bg{background:linear-gradient(160deg,#0d1a0a 0%,#18280f 50%,#1a1408 100%)}
+.cg4 .cp-bg{background:linear-gradient(160deg,#1a0a1a 0%,#280f28 50%,#0a0f1a 100%)}
+.cp-glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(201,169,110,.18),transparent 65%);opacity:0;transition:opacity .5s}
+.cp:hover .cp-glow{opacity:1}
+.cp-ico{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);font-size:3.8rem;filter:drop-shadow(0 0 28px rgba(201,169,110,.5));transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.cp:hover .cp-ico{transform:translate(-50%,-55%) scale(1.15)}
+.cp-info{position:absolute;bottom:0;left:0;right:0;padding:36px 26px;background:linear-gradient(to top,rgba(8,8,8,.9) 0%,transparent 100%)}
+.cp-name{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;margin-bottom:6px;transform:translateY(8px);transition:transform .4s}
+.cp:hover .cp-name{transform:translateY(0)}
+.cp-cnt{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);opacity:0;transform:translateY(6px);transition:opacity .4s .1s,transform .4s .1s}
+.cp:hover .cp-cnt{opacity:1;transform:translateY(0)}
+.cp-arr{position:absolute;top:22px;right:22px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(201,169,110,.3);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:.85rem;opacity:0;transform:scale(.8);transition:opacity .4s,transform .4s}
+.cp:hover .cp-arr{opacity:1;transform:scale(1)}
+
+/* ─── CINEMATIC BANNER ─── */
+#banner{height:75vh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.ban-bg{position:absolute;inset:-10%;background:linear-gradient(135deg,#08050e 0%,#120a0f 40%,#080e14 100%)}
+.ban-lines{position:absolute;inset:0}
+.ban-line{position:absolute;left:0;right:0;height:1px;background:rgba(201,169,110,.04)}
+.ban-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 45% at 50% 50%,rgba(201,169,110,.09),transparent 70%);animation:banGlow 5s ease-in-out infinite}
+@keyframes banGlow{0%,100%{opacity:.5}50%{opacity:1}}
+.ban-c{position:relative;z-index:2;text-align:center;padding:0 40px}
+.ban-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,8vw,7rem);font-weight:300;line-height:1;margin:24px 0 32px}
+.ban-title em{font-style:italic;color:var(--gold)}
+.ban-sub{font-size:.82rem;letter-spacing:.15em;color:var(--mut);margin-bottom:44px}
+
+/* ─── TESTIMONIALS ─── */
+#testimonials{padding:110px 64px}
+.testi-head{text-align:center;margin-bottom:72px}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tc{background:var(--card);border:1px solid var(--brd);padding:38px;position:relative;transition:border-color .4s,transform .4s}
+.tc:hover{border-color:rgba(201,169,110,.2);transform:translateY(-5px)}
+.tq{font-family:'Cormorant Garamond',serif;font-size:5rem;line-height:.8;color:var(--gold);opacity:.15;position:absolute;top:14px;left:22px}
+.ttext{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-style:italic;line-height:1.8;margin-bottom:26px;position:relative;z-index:1}
+.tstars{display:flex;gap:4px;font-size:.78rem;color:var(--gold);margin-bottom:18px}
+.tauthor{display:flex;align-items:center;gap:14px}
+.tav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:600;color:var(--blk)}
+.tname{font-size:.85rem;font-weight:500;margin-bottom:2px}
+.trole{font-size:.7rem;color:var(--mut);letter-spacing:.04em}
+
+/* ─── NEWSLETTER ─── */
+#nl{padding:110px 64px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.nl-content .lbl{margin-bottom:18px}
+.nl-content .stitle{margin-bottom:18px}
+.nl-desc{font-size:.87rem;color:var(--mut);line-height:1.85}
+.nl-form h3{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;margin-bottom:8px}
+.nl-form p{font-size:.78rem;color:var(--mut);margin-bottom:22px}
+.igrp{display:flex}
+.nl-inp{flex:1;padding:16px 18px;background:rgba(255,255,255,.025);border:1px solid rgba(201,169,110,.14);border-right:none;color:var(--txt);font-size:.8rem;outline:none;transition:border-color .3s;font-family:'Inter',sans-serif}
+.nl-inp:focus{border-color:rgba(201,169,110,.38)}
+.nl-inp::placeholder{color:var(--mut)}
+.nl-sub{padding:16px 26px;background:var(--gold);color:var(--blk);border:1px solid var(--gold);cursor:none;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;transition:background .3s}
+.nl-sub:hover{background:var(--gold-l)}
+.perks{display:flex;gap:22px;margin-top:16px}
+.perk{display:flex;align-items:center;gap:7px;font-size:.7rem;color:var(--mut)}
+.pk-dot{width:3px;height:3px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* ─── FOOTER ─── */
+footer{padding:80px 64px 36px;border-top:1px solid var(--brd)}
+.ftop{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:56px}
+.fbrand .logo{display:block;margin-bottom:18px}
+.fdesc{font-size:.8rem;color:var(--mut);line-height:1.8;max-width:270px}
+.fsocials{display:flex;gap:10px;margin-top:22px}
+.fsoc{width:34px;height:34px;border:1px solid rgba(201,169,110,.18);display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:.75rem;text-decoration:none;transition:border-color .3s,color .3s}
+.fsoc:hover{border-color:var(--gold);color:var(--gold)}
+.fcol h4{font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+.fcol ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.fcol ul a{font-size:.8rem;color:var(--mut);text-decoration:none;transition:color .3s}
+.fcol ul a:hover{color:var(--txt)}
+.fbot{border-top:1px solid var(--brd);padding-top:26px;display:flex;align-items:center;justify-content:space-between}
+.fcopy{font-size:.7rem;color:var(--mut)}
+.flegal{display:flex;gap:22px}
+.flegal a{font-size:.7rem;color:var(--mut);text-decoration:none;transition:color .3s}
+.flegal a:hover{color:var(--txt)}
+
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;border:1px solid rgba(201,169,110,.25);padding:14px 28px;font-size:.75rem;letter-spacing:.1em;color:var(--gold);opacity:0;transition:opacity .4s,transform .4s;z-index:5000;pointer-events:none;text-transform:uppercase}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── MOBILE ─── */
+@media(max-width:768px){
+  nav{padding:18px 24px}.nav-links,.nav-right .nav-cta{display:none}
+  nav.stuck{padding:12px 24px}
+  #featured,#nl{grid-template-columns:1fr;padding:80px 24px;gap:40px}
+  #ring3d{grid-template-columns:1fr;padding:80px 24px;gap:40px}
+  .pgrid{grid-template-columns:1fr 1fr}
+  #products,#testimonials{padding:80px 24px}
+  .tgrid{grid-template-columns:1fr}
+  .cat-track,.lb-grid{grid-template-columns:1fr 1fr;padding:0 24px}
+  .lb-item:first-child{grid-row:auto}
+  #stats{grid-template-columns:1fr 1fr}
+  .stat{border-right:none;border-bottom:1px solid var(--brd)}
+  .ftop{grid-template-columns:1fr;gap:32px}
+  footer{padding:56px 24px 28px}
+  .qv-box{grid-template-columns:1fr;max-width:360px}
+  .qv-img{min-height:260px}
+  #cart-side{width:100%;max-width:380px}
+  .hero-btns{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-logo">GLOWLUX</div>
+  <div class="ld-bar"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- CART SIDEBAR -->
+<div id="cart-side">
+  <div class="cart-head">
+    <h3>Your Selection</h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div style="text-align:center;padding:60px 20px;color:var(--mut);font-size:.85rem;letter-spacing:.1em">Your cart is empty</div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong id="cartTotal">$0</strong>
+    </div>
+    <button class="checkout-btn">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- QUICK VIEW MODAL -->
+<div id="qv-modal">
+  <div class="qv-overlay" onclick="closeQV()"></div>
+  <div class="qv-box">
+    <div class="qv-img" id="qvImg">💄</div>
+    <div class="qv-info">
+      <p class="qv-cat" id="qvCat">Cosmetics</p>
+      <h2 class="qv-name" id="qvName">Product Name</h2>
+      <div class="qv-stars">★★★★★</div>
+      <div class="qv-price" id="qvPrice">$0</div>
+      <p class="qv-desc" id="qvDesc">Description</p>
+      <div class="qv-swatches">
+        <label>Shade</label>
+        <div class="swatch-row">
+          <div class="swatch active" style="background:#c9a96e"></div>
+          <div class="swatch" style="background:#b76e79"></div>
+          <div class="swatch" style="background:#8a4a5a"></div>
+          <div class="swatch" style="background:#d4b08a"></div>
+        </div>
+      </div>
+      <div class="qv-actions">
+        <button class="qv-add" id="qvAddBtn">Add to Cart</button>
+        <button class="qv-wish">♡</button>
+      </div>
+    </div>
+    <button class="qv-close" onclick="closeQV()">✕</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="logo" href="#">GLOWLUX</a>
+  <ul class="nav-links">
+    <li><a href="#products">Shop</a></li>
+    <li><a href="#categories">Collections</a></li>
+    <li><a href="#ring3d">Jewellery</a></li>
+    <li><a href="#lookbook">Lookbook</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="openCart()">
+      Cart
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div id="particles"></div>
+  <div class="bg-word" id="bgWord">GLOW</div>
+  <div class="hero-c">
+    <p class="eyebrow">New Collection 2026 &nbsp;·&nbsp; Limited Edition</p>
+    <h1 class="h1">Beauty<br><em>Reimagined</em><br>in Gold</h1>
+    <p class="hero-sub">Luxury cosmetics & fine jewellery — crafted for the woman<br>who commands every room she enters</p>
+    <div class="hero-btns">
+      <a href="#products" class="btn-g">Shop Collection</a>
+      <a href="#lookbook" class="btn-o">View Lookbook</a>
+    </div>
+  </div>
+  <div class="scroll-ind">
+    <span>Scroll</span>
+    <div class="scrl-ln"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq-wrap">
+  <div class="mq-track">
+    <div class="mq-i"><span class="mq-dot"></span>Premium Cosmetics</div>
+    <div class="mq-i"><span class="mq-dot"></span>Fine Jewellery</div>
+    <div class="mq-i"><span class="mq-dot"></span>18K Gold Collection</div>
+    <div class="mq-i"><span class="mq-dot"></span>Luxury Fragrances</div>
+    <div class="mq-i"><span class="mq-dot"></span>Diamond Series</div>
+    <div class="mq-i"><span class="mq-dot"></span>Skincare Rituals</div>
+    <div class="mq-i"><span class="mq-dot"></span>Rose Gold Edition</div>
+    <div class="mq-i"><span class="mq-dot"></span>Limited Drops</div>
+    <div class="mq-i"><span class="mq-dot"></span>Premium Cosmetics</div>
+    <div class="mq-i"><span class="mq-dot"></span>Fine Jewellery</div>
+    <div class="mq-i"><span class="mq-dot"></span>18K Gold Collection</div>
+    <div class="mq-i"><span class="mq-dot"></span>Luxury Fragrances</div>
+    <div class="mq-i"><span class="mq-dot"></span>Diamond Series</div>
+    <div class="mq-i"><span class="mq-dot"></span>Skincare Rituals</div>
+    <div class="mq-i"><span class="mq-dot"></span>Rose Gold Edition</div>
+    <div class="mq-i"><span class="mq-dot"></span>Limited Drops</div>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<section id="featured">
+  <div class="feat-vis rvl">
+    <div class="feat-card">
+      <div class="feat-art art-palette"></div>
+      <div class="feat-tag">✦ Bestseller</div>
+      <div class="feat-badge">New<br>Season<br>2026</div>
+    </div>
+  </div>
+  <div class="feat-content rvr">
+    <p class="lbl">✦ Editor's Pick</p>
+    <h2 class="stitle">The Golden<br><em>Hour Palette</em></h2>
+    <p class="feat-desc">A masterful blend of 24 shades inspired by the magic of golden hour. Hand-pressed pigments, velvet mattes, and blinding shimmers — designed to transform your look from sunrise to midnight.</p>
+    <div class="feat-meta">
+      <div>
+        <div class="feat-price">$189 <span class="feat-old">$240</span></div>
+      </div>
+      <div class="feat-shades">
+        <div class="shade active" style="background:#c9a96e" title="Gold Dust"></div>
+        <div class="shade" style="background:#b76e79" title="Rose Bloom"></div>
+        <div class="shade" style="background:#8a5a3a" title="Sienna"></div>
+        <div class="shade" style="background:#4a3a2a" title="Midnight"></div>
+      </div>
+    </div>
+    <div class="feat-btns">
+      <button class="btn-g" onclick="addToCart('Golden Hour Palette','💄',189)">Add to Cart</button>
+      <a href="#" class="btn-o">View Details</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stat rv"><div class="stat-n" data-target="50000">0</div><div class="stat-l">Happy Customers</div></div>
+  <div class="stat rv" style="transition-delay:.1s"><div class="stat-n" data-target="200">0</div><div class="stat-l">Luxury Products</div></div>
+  <div class="stat rv" style="transition-delay:.2s"><div class="stat-n" data-target="15">0</div><div class="stat-l">Awards Won</div></div>
+  <div class="stat rv" style="transition-delay:.3s"><div class="stat-n" data-target="98">0</div><div class="stat-l">% Satisfaction</div></div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="prod-head rv">
+    <p class="lbl">✦ Our Products</p>
+    <h2 class="stitle">Curated <em>Luxury</em> for You</h2>
+    <div class="filters">
+      <button class="fb on">All</button>
+      <button class="fb">Cosmetics</button>
+      <button class="fb">Jewellery</button>
+      <button class="fb">Skincare</button>
+      <button class="fb">Fragrance</button>
+    </div>
+  </div>
+  <div class="pgrid">
+
+    <div class="pc rv" style="--pflt:4.2s">
+      <div class="pimg art1">
+        <div class="pimg-inner"><span class="pico">💄</span></div>
+        <div class="pglow"></div>
+        <div class="pbadge badge-new">New</div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('Velvet Noir Lipstick','💄',42)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('Velvet Noir Lipstick','💄',42,'Cosmetics','A deep, velvet-finish lipstick that lasts 16 hours. Infused with rose oil and vitamin E for a moisturising, pigment-rich colour payoff.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Cosmetics</p>
+        <h3 class="pname">Velvet Noir Lipstick</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#8a1a2a"></div>
+          <div class="psw" style="background:#b76e79"></div>
+          <div class="psw" style="background:#c9a96e"></div>
+          <div class="psw" style="background:#4a1a0a"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$42</span>
+          <div class="pstars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc rv" style="transition-delay:.08s;--pflt:3.8s">
+      <div class="pimg art2">
+        <div class="pimg-inner"><span class="pico">💍</span></div>
+        <div class="pglow"></div>
+        <div class="pbadge badge-lim">Limited</div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('18K Rose Gold Ring','💍',340)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('18K Rose Gold Ring','💍',340,'Jewellery','Hand-crafted 18K rose gold ring set with conflict-free diamonds. GIA certified. Available in sizes 5–9. Complimentary engraving included.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Jewellery</p>
+        <h3 class="pname">18K Rose Gold Ring</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#c9a96e"></div>
+          <div class="psw" style="background:#b76e79"></div>
+          <div class="psw" style="background:#e8d5a3"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$340</span>
+          <div class="pstars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc rv" style="transition-delay:.16s;--pflt:5s">
+      <div class="pimg art3">
+        <div class="pimg-inner"><span class="pico">✨</span></div>
+        <div class="pglow"></div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('Gold Elixir Serum','✨',128)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('Gold Elixir Serum','✨',128,'Skincare','24K gold-infused serum with hyaluronic acid and retinol. Visibly reduces fine lines in 14 days. Dermatologist tested and cruelty-free.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Skincare</p>
+        <h3 class="pname">Gold Elixir Serum</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#c9a96e"></div>
+          <div class="psw" style="background:#e8d5a3"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$128</span>
+          <div class="pstars">★★★★<span style="opacity:.3">★</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc rv" style="transition-delay:.24s;--pflt:4.6s">
+      <div class="pimg art4">
+        <div class="pimg-inner"><span class="pico">📿</span></div>
+        <div class="pglow"></div>
+        <div class="pbadge badge-sale">Sale</div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('Pearl Cascade Necklace','📿',220)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('Pearl Cascade Necklace','📿',220,'Jewellery','South Sea pearl necklace with 18K gold clasp. Each pearl individually hand-selected for lustre and roundness. 18-inch length.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Jewellery</p>
+        <h3 class="pname">Pearl Cascade Necklace</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#f0ece8"></div>
+          <div class="psw" style="background:#c9a96e"></div>
+          <div class="psw" style="background:#b76e79"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$220</span>
+          <div class="pstars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc rv" style="transition-delay:.32s;--pflt:3.5s">
+      <div class="pimg art5">
+        <div class="pimg-inner"><span class="pico">🌹</span></div>
+        <div class="pglow"></div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('Rose Oud Parfum','🌹',195)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('Rose Oud Parfum','🌹',195,'Fragrance','An opulent blend of Bulgarian rose, aged oud, amber and white musk. Long-lasting 12+ hour wear. 50ml EDP in hand-blown crystal flacon.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Fragrance</p>
+        <h3 class="pname">Rose Oud Parfum</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#b76e79"></div>
+          <div class="psw" style="background:#8a4a2a"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$195</span>
+          <div class="pstars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pc rv" style="transition-delay:.40s;--pflt:4.9s">
+      <div class="pimg art6">
+        <div class="pimg-inner"><span class="pico">👑</span></div>
+        <div class="pglow"></div>
+        <div class="pbadge badge-lim">Luxury</div>
+        <div class="pac">
+          <button class="padd" onclick="addToCart('Diamond Tiara Set','👑',1200)">Add to Cart</button>
+          <button class="pqv" onclick="openQV('Diamond Tiara Set','👑',1200,'Jewellery','Museum-quality diamond tiara crafted with 3.2 carats of VS1 diamonds set in 18K white gold. Comes with a certificate of authenticity.')">👁</button>
+          <button class="pwish">♡</button>
+        </div>
+      </div>
+      <div class="pinfo">
+        <p class="pcat">Jewellery</p>
+        <h3 class="pname">Diamond Tiara Set</h3>
+        <div class="pswatches">
+          <div class="psw" style="background:#e8d5a3"></div>
+          <div class="psw" style="background:#c0c0c0"></div>
+        </div>
+        <div class="pfoot" style="margin-top:12px">
+          <span class="pprice">$1,200</span>
+          <div class="pstars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 3D RING SHOWCASE -->
+<section id="ring3d">
+  <div class="ring-scene rvl">
+    <div class="ring-glow"></div>
+    <div class="ring-orbit">
+      <div class="ring-gem"></div>
+      <div class="ring-gem"></div>
+      <div class="ring-gem"></div>
+      <div class="ring-gem"></div>
+      <div class="ring-gem"></div>
+      <div class="ring-gem"></div>
+    </div>
+    <div class="ring-center"></div>
+  </div>
+  <div class="ring-info rvr">
+    <p class="lbl">✦ Fine Jewellery</p>
+    <h2 class="stitle">Crafted in<br><em>Eternity</em></h2>
+    <p class="ring-desc">Every GlowLux jewellery piece is handcrafted by master artisans using ethically sourced 18K gold, conflict-free diamonds, and rare gemstones. Each creation is a wearable sculpture, built to be inherited.</p>
+    <div class="ring-specs">
+      <div class="rspec"><div class="rspec-val">18K</div><div class="rspec-lbl">Gold Purity</div></div>
+      <div class="rspec"><div class="rspec-val">VS1</div><div class="rspec-lbl">Diamond Grade</div></div>
+      <div class="rspec"><div class="rspec-val">GIA</div><div class="rspec-lbl">Certified</div></div>
+      <div class="rspec"><div class="rspec-val">∞</div><div class="rspec-lbl">Lifetime Warranty</div></div>
+    </div>
+    <a href="#" class="btn-g">Explore Jewellery</a>
+  </div>
+</section>
+
+<!-- LOOKBOOK -->
+<section id="lookbook">
+  <div class="lb-head rv">
+    <p class="lbl">✦ Editorial</p>
+    <h2 class="stitle">The 2026 <em>Lookbook</em></h2>
+  </div>
+  <div class="lb-grid">
+    <div class="lb-item rv">
+      <div class="lb-bg lb-b1"></div>
+      <div class="lb-ico">💄</div>
+      <div class="lb-overlay"></div>
+      <div class="lb-info">
+        <p class="lb-tag">✦ Campaign</p>
+        <h3 class="lb-name">Velvet Noir Collection</h3>
+        <p class="lb-shop">Shop the look</p>
+      </div>
+    </div>
+    <div class="lb-item rv" style="transition-delay:.1s">
+      <div class="lb-bg lb-b2"></div>
+      <div class="lb-ico">💍</div>
+      <div class="lb-overlay"></div>
+      <div class="lb-info">
+        <p class="lb-tag">✦ Fine Jewellery</p>
+        <h3 class="lb-name">Gold Era Rings</h3>
+        <p class="lb-shop">Shop the look</p>
+      </div>
+    </div>
+    <div class="lb-item rv" style="transition-delay:.2s">
+      <div class="lb-bg lb-b3"></div>
+      <div class="lb-ico">✨</div>
+      <div class="lb-overlay"></div>
+      <div class="lb-info">
+        <p class="lb-tag">✦ Skincare</p>
+        <h3 class="lb-name">The Glow Ritual</h3>
+        <p class="lb-shop">Shop the look</p>
+      </div>
+    </div>
+    <div class="lb-item rv" style="transition-delay:.15s">
+      <div class="lb-bg lb-b4"></div>
+      <div class="lb-ico">🌹</div>
+      <div class="lb-overlay"></div>
+      <div class="lb-info">
+        <p class="lb-tag">✦ Fragrance</p>
+        <h3 class="lb-name">Midnight Rose</h3>
+        <p class="lb-shop">Shop the look</p>
+      </div>
+    </div>
+    <div class="lb-item rv" style="transition-delay:.25s">
+      <div class="lb-bg lb-b5"></div>
+      <div class="lb-ico">📿</div>
+      <div class="lb-overlay"></div>
+      <div class="lb-info">
+        <p class="lb-tag">✦ Pearl</p>
+        <h3 class="lb-name">Ocean Season</h3>
+        <p class="lb-shop">Shop the look</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories">
+  <div class="cat-head rv">
+    <p class="lbl">✦ Shop by World</p>
+    <h2 class="stitle">Every <em>Desire</em> Covered</h2>
+  </div>
+  <div class="cat-track">
+    <div class="cp cg1 rv">
+      <div class="cp-bg"></div><div class="cp-glow"></div>
+      <div class="cp-ico">💄</div>
+      <div class="cp-arr">→</div>
+      <div class="cp-info"><h3 class="cp-name">Cosmetics</h3><p class="cp-cnt">84 Products</p></div>
+    </div>
+    <div class="cp cg2 rv" style="transition-delay:.1s">
+      <div class="cp-bg"></div><div class="cp-glow"></div>
+      <div class="cp-ico">💎</div>
+      <div class="cp-arr">→</div>
+      <div class="cp-info"><h3 class="cp-name">Jewellery</h3><p class="cp-cnt">62 Products</p></div>
+    </div>
+    <div class="cp cg3 rv" style="transition-delay:.2s">
+      <div class="cp-bg"></div><div class="cp-glow"></div>
+      <div class="cp-ico">🌿</div>
+      <div class="cp-arr">→</div>
+      <div class="cp-info"><h3 class="cp-name">Skincare</h3><p class="cp-cnt">47 Products</p></div>
+    </div>
+    <div class="cp cg4 rv" style="transition-delay:.3s">
+      <div class="cp-bg"></div><div class="cp-glow"></div>
+      <div class="cp-ico">🌸</div>
+      <div class="cp-arr">→</div>
+      <div class="cp-info"><h3 class="cp-name">Fragrance</h3><p class="cp-cnt">31 Products</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BANNER -->
+<section id="banner">
+  <div class="ban-bg"></div>
+  <div class="ban-lines">
+    <div class="ban-line" style="top:20%"></div>
+    <div class="ban-line" style="top:40%"></div>
+    <div class="ban-line" style="top:60%"></div>
+    <div class="ban-line" style="top:80%"></div>
+  </div>
+  <div class="ban-glow"></div>
+  <div class="ban-c">
+    <p class="lbl rv">✦ The New Standard</p>
+    <h2 class="ban-title rv">Beauty is<br><em>Your Power</em></h2>
+    <p class="ban-sub rv">Free worldwide shipping on orders over $150 · Complimentary gift wrapping</p>
+    <a href="#products" class="btn-g rv">Shop All Products</a>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testi-head rv">
+    <p class="lbl">✦ Client Love</p>
+    <h2 class="stitle">Words of <em>Devotion</em></h2>
+  </div>
+  <div class="tgrid">
+    <div class="tc rv">
+      <div class="tq">"</div>
+      <p class="ttext">The Golden Hour Palette is the most stunning thing I own. Every shade is pure perfection — it's not just makeup, it's wearable art.</p>
+      <div class="tstars">★★★★★</div>
+      <div class="tauthor">
+        <div class="tav" style="background:linear-gradient(135deg,#c9a96e,#e8d5a3)">S</div>
+        <div><div class="tname">Sofia Marchetti</div><div class="trole">Fashion Blogger · Milan</div></div>
+      </div>
+    </div>
+    <div class="tc rv" style="transition-delay:.1s">
+      <div class="tq">"</div>
+      <p class="ttext">My Rose Gold Ring gets compliments every single day. The craftsmanship is extraordinary — I can't believe how beautifully it catches light.</p>
+      <div class="tstars">★★★★★</div>
+      <div class="tauthor">
+        <div class="tav" style="background:linear-gradient(135deg,#b76e79,#c9a96e)">A</div>
+        <div><div class="tname">Aisha Rahman</div><div class="trole">Jewellery Enthusiast · Dubai</div></div>
+      </div>
+    </div>
+    <div class="tc rv" style="transition-delay:.2s">
+      <div class="tq">"</div>
+      <p class="ttext">The Gold Elixir Serum transformed my skin in two weeks. GlowLux has completely redefined what luxury skincare means to me. Absolutely worth every penny.</p>
+      <div class="tstars">★★★★★</div>
+      <div class="tauthor">
+        <div class="tav" style="background:linear-gradient(135deg,#6e9ec9,#c9a96e)">P</div>
+        <div><div class="tname">Priya Sharma</div><div class="trole">Beauty Editor · London</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="nl">
+  <div class="nl-content rvl">
+    <p class="lbl">✦ Inner Circle</p>
+    <h2 class="stitle">Join the <em>Glow</em><br>Collective</h2>
+    <p class="nl-desc">Become a member of the GlowLux Inner Circle. Be first to discover new collections, receive exclusive offers, and gain access to private events and limited edition drops.</p>
+  </div>
+  <div class="nl-form rvr">
+    <h3>Subscribe & Receive</h3>
+    <p>Get 15% off your first order + early access to new arrivals</p>
+    <div class="igrp">
+      <input type="email" class="nl-inp" placeholder="Your email address">
+      <button class="nl-sub" onclick="showToast('Welcome to the Inner Circle ✦')">Join Now</button>
+    </div>
+    <div class="perks">
+      <div class="perk"><span class="pk-dot"></span>Free Shipping</div>
+      <div class="perk"><span class="pk-dot"></span>Early Access</div>
+      <div class="perk"><span class="pk-dot"></span>Exclusive Drops</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ftop">
+    <div class="fbrand">
+      <a class="logo" href="#">GLOWLUX</a>
+      <p class="fdesc">Luxury cosmetics and fine jewellery for the modern woman. Crafted with intention. Worn with confidence.</p>
+      <div class="fsocials">
+        <a class="fsoc" href="#">𝕏</a>
+        <a class="fsoc" href="#">in</a>
+        <a class="fsoc" href="#">ig</a>
+        <a class="fsoc" href="#">yt</a>
+      </div>
+    </div>
+    <div class="fcol">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Cosmetics</a></li>
+        <li><a href="#">Fine Jewellery</a></li>
+        <li><a href="#">Skincare</a></li>
+        <li><a href="#">Fragrance</a></li>
+        <li><a href="#">Gift Sets</a></li>
+      </ul>
+    </div>
+    <div class="fcol">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Artisans</a></li>
+        <li><a href="#">Press</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="fcol">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Care Guide</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="fbot">
+    <p class="fcopy">© 2026 GlowLux. All rights reserved. Crafted with love.</p>
+    <div class="flegal">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── LOADER ──
+window.addEventListener('load',()=>{
+  setTimeout(()=>document.getElementById('loader').classList.add('out'), 1800);
+});
+
+// ── CURSOR ──
+const cur=document.getElementById('cur'), cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animCur(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(animCur)})();
+document.querySelectorAll('a,button,.pc,.cp,.lb-item,.tc,.j-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-lg'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-lg'));
+});
+
+// ── SCROLL PROGRESS + NAV ──
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+  document.getElementById('prog').style.width=p+'%';
+  document.getElementById('nav').classList.toggle('stuck',window.scrollY>60);
+});
+
+// ── PARTICLES ──
+const pc=document.getElementById('particles');
+for(let i=0;i<40;i++){
+  const el=document.createElement('div');
+  const s=Math.random()*3+1;
+  el.className='p';
+  el.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${Math.random()>.5?'#c9a96e':'#b76e79'};--d:${Math.random()*9+7}s;--dl:${Math.random()*8}s`;
+  pc.appendChild(el);
+}
+
+// ── REVEAL ──
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')}),{threshold:.1});
+document.querySelectorAll('.rv,.rvl,.rvr').forEach(el=>ro.observe(el));
+
+// ── COUNTER ──
+const co=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting&&!e.target.dataset.done){
+      e.target.dataset.done='1';
+      const t=+e.target.dataset.target;
+      const isK=t>=1000, isPct=e.target.closest('.stat').querySelector('.stat-l').textContent.includes('%');
+      const display=isK?t/1000:t;
+      const suffix=isPct?'%':'+'+(isK?'K':'');
+      let s=0; const step=display/55;
+      const tm=setInterval(()=>{
+        s+=step; if(s>=display){s=display;clearInterval(tm);}
+        e.target.textContent=Math.floor(s)+suffix;
+      },22);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>co.observe(el));
+
+// ── FILTER BUTTONS ──
+document.querySelectorAll('.fb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fb').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+}));
+
+// ── 3D TILT ON PRODUCT CARDS ──
+document.querySelectorAll('.pc').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`perspective(600px) rotateY(${x*14}deg) rotateX(${-y*9}deg) scale(1.03)`;
+  });
+  card.addEventListener('mouseleave',()=>card.style.transform='');
+});
+
+// ── HERO PARALLAX MOUSE ──
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/window.innerWidth-.5)*22;
+  const y=(e.clientY/window.innerHeight-.5)*11;
+  const bw=document.getElementById('bgWord');
+  if(bw)bw.style.transform=`perspective(900px) rotateX(${-y}deg) rotateY(${x}deg) scale(1)`;
+});
+
+// ── SHADE SWATCHES ──
+document.querySelectorAll('.shade').forEach(s=>s.addEventListener('click',()=>{
+  s.closest('.feat-meta').querySelectorAll('.shade').forEach(x=>x.classList.remove('active'));
+  s.classList.add('active');
+}));
+document.querySelectorAll('.swatch').forEach(s=>s.addEventListener('click',()=>{
+  s.closest('.swatch-row').querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));
+  s.classList.add('active');
+}));
+
+// ── CART ──
+let cart=[];
+function openCart(){
+  document.getElementById('cart-side').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('show');
+}
+function closeCart(){
+  document.getElementById('cart-side').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('show');
+}
+function renderCart(){
+  const el=document.getElementById('cartItems');
+  const total=cart.reduce((a,i)=>a+i.price*i.qty,0);
+  document.getElementById('cartTotal').textContent='$'+total.toLocaleString();
+  document.getElementById('cartCount').textContent=cart.reduce((a,i)=>a+i.qty,0);
+  if(!cart.length){
+    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--mut);font-size:.85rem;letter-spacing:.1em">Your cart is empty</div>';
+    return;
+  }
+  el.innerHTML=cart.map((item,i)=>`
+    <div class="cart-item">
+      <div class="cart-item-img">${item.icon}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">$${item.price}</div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+          <button class="cart-remove" onclick="removeItem(${i})">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function addToCart(name,icon,price){
+  const ex=cart.find(i=>i.name===name);
+  if(ex)ex.qty++;
+  else cart.push({name,icon,price,qty:1});
+  renderCart();
+  showToast('Added to cart ✦');
+  openCart();
+}
+function changeQty(i,d){
+  cart[i].qty+=d;
+  if(cart[i].qty<1)cart.splice(i,1);
+  renderCart();
+}
+function removeItem(i){cart.splice(i,1);renderCart();}
+
+// ── QUICK VIEW ──
+function openQV(name,icon,price,cat,desc){
+  document.getElementById('qvName').textContent=name;
+  document.getElementById('qvImg').textContent=icon;
+  document.getElementById('qvPrice').textContent='$'+price;
+  document.getElementById('qvCat').textContent=cat;
+  document.getElementById('qvDesc').textContent=desc;
+  document.getElementById('qvAddBtn').onclick=()=>{addToCart(name,icon,price);closeQV()};
+  document.getElementById('qv-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeQV(){
+  document.getElementById('qv-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "dev": "npx --yes http-server nova-tab -p 5500 -c-1 --cors"
+  },
+  "dependencies": {
+    "framer-motion": "^12.40.0"
+  }
+}

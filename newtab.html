@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="app">
+
+    <!-- ── TOP BAR: Time + Weather + Settings ─────────── -->
+    <div class="top-row">
+      <div class="top-hero glass">
+        <div class="th-time">
+          <span class="th-digits" id="clockDigits">00:00</span>
+          <span class="th-ampm"   id="clockAmpm"></span>
+          <span class="th-sec"    id="clockSec"></span>
+        </div>
+        <div class="th-vsep"></div>
+        <div class="th-weather">
+          <span class="th-wicon" id="weatherIcon">🌤️</span>
+          <span class="th-temp"  id="weatherTemp">--°</span>
+          <div class="th-vsep2"></div>
+          <span class="th-desc"  id="weatherDesc">Fetching weather…</span>
+          <div class="th-vsep2"></div>
+          <span class="th-loc"   id="weatherLoc">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Locating…
+          </span>
+        </div>
+      </div>
+      <div class="util-row">
+        <a href="https://mail.google.com" class="util-btn" title="Gmail" target="_blank">Gmail</a>
+        <a href="https://images.google.com" class="util-btn" title="Google Images" target="_blank">Images</a>
+        <button class="util-btn util-apps-btn" id="appsBtn" title="Google Apps">
+          <svg width="15" height="15" viewBox="0 0 18 18" fill="currentColor"><path d="M1 1h4v4H1zm6 0h4v4H7zm6 0h4v4h-4zM1 7h4v4H1zm6 0h4v4H7zm6 0h4v4h-4zM1 13h4v4H1zm6 0h4v4H7zm6 0h4v4h-4z"/></svg>
+        </button>
+
+        <!-- Google Apps Grid Popup -->
+        <div class="apps-popup glass" id="appsPopup">
+          <div class="apps-grid" id="appsGrid"></div>
+        </div>
+      </div>
+      <button class="btn-icon" id="settingsToggle" title="Settings" aria-label="Open settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── TOR ANONYMOUS MODE BANNER ────────────────── -->
+    <div class="tor-banner" id="torBanner" hidden>
+      <span class="tor-icon">🧅</span>
+      <span class="tor-text">ANONYMOUS MODE — searches route through Tor/DDG onion network. For full anonymity, use <strong>Tor Browser</strong>.</span>
+      <button class="tor-close" id="torBannerClose">✕</button>
+    </div>
+
+    <!-- ── HACKER TYPEWRITER STRIP ───────────────────── -->
+    <div class="hacker-strip">
+      <span class="hs-prompt">&gt;&nbsp;</span><span id="hackerStrip"></span><span class="hs-cur">█</span>
+    </div>
+
+    <!-- ── BOOKMARKS BAR (Chrome-style) ───────────────── -->
+    <nav class="bookmarks-bar" id="bookmarksBar" aria-label="Bookmarks bar"></nav>
+
+    <!-- ── MAIN: HACKER BROWSER heading + search ──────── -->
+    <main class="main">
+
+      <!-- Robot mascot — injected by JS (switchable skins) -->
+      <div class="robot-wrap" id="robotWrap"></div>
+      <div class="robot-skins" id="robotSkins"></div>
+
+      <div class="hacker-brand">
+        <span class="hacker-text" id="hackerText" contenteditable="true" spellcheck="false" title="Click to edit">SPIDER BROWSER</span><span class="blink-cur">_</span>
+      </div>
+
+      <!-- ── MOTIVATIONAL STRIP ─────────────────────────── -->
+      <div class="motiv-strip">
+        <span class="motiv-text" id="motivText"></span><span class="motiv-cur">▌</span>
+      </div>
+
+      <p class="greeting-text" id="greeting">GOOD AFTERNOON</p>
+      <p class="date-line"     id="dateDisplay">Thursday, January 1, 2026</p>
+
+      <form class="search-form" id="searchForm" autocomplete="off">
+        <div class="search-box">
+          <svg class="search-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search the web…" spellcheck="false">
+        </div>
+      </form>
+
+      <!-- Engine pills — select which browser/engine to search with -->
+      <div class="engine-pills" id="enginePills"></div>
+
+      <div class="quick-links" id="quickLinks"></div>
+
+    </main>
+
+    <!-- ── BOTTOM: Themes + Quote ──────────────────────── -->
+    <footer class="bottombar">
+      <div class="theme-row">
+        <div class="theme-dots" id="themeDots"></div>
+        <div class="opacity-ctrl">
+          <!-- Transparency label -->
+          <span class="opacity-label">THEME</span>
+          <svg class="opacity-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+          <input type="range" id="bgOpacitySlider" class="opacity-slider" min="0.05" max="1" step="0.05" value="1" title="Theme transparency">
+          <svg class="opacity-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20V2z"/></svg>
+
+          <!-- Divider -->
+          <span class="opacity-divider"></span>
+
+          <!-- Background image picker -->
+          <span class="opacity-label">BG</span>
+          <label class="bg-pick-btn" title="Set background photo" id="bgPickLabel">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <input type="file" id="bgImageInput" accept="image/*" hidden>
+          </label>
+          <button class="bg-clear-btn" id="bgClearBtn" title="Remove background photo" hidden>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="glass widget quote-widget">
+        <p class="quote-text"   id="quoteText">"The secret of getting ahead is getting started."</p>
+        <span class="quote-author" id="quoteAuthor">— Mark Twain</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ── SETTINGS PANEL ──────────────────────────────── -->
+  <aside class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <span>Settings</span>
+      <button class="btn-icon" id="settingsClose" aria-label="Close settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="settings-body">
+      <div class="s-group">
+        <label class="s-label">Heading Text</label>
+        <input type="text" class="s-input" id="headingInput" placeholder="HACKER BROWSER">
+        <p class="s-hint">The big text shown in the center</p>
+      </div>
+      <div class="s-group">
+        <label class="s-label">Your Name</label>
+        <input type="text" class="s-input" id="nameInput" placeholder="Enter your name…">
+        <p class="s-hint">Personalises the greeting</p>
+      </div>
+      <div class="s-group">
+        <label class="s-label">Clock Format</label>
+        <div class="toggle-row">
+          <button class="tog active" data-val="12" id="fmt12">12h</button>
+          <button class="tog"        data-val="24" id="fmt24">24h</button>
+        </div>
+      </div>
+      <div class="s-group">
+        <label class="s-label">Temperature</label>
+        <div class="toggle-row">
+          <button class="tog active" data-val="C" id="tempC">°C</button>
+          <button class="tog"        data-val="F" id="tempF">°F</button>
+        </div>
+      </div>
+      <div class="s-group">
+        <label class="s-label">Default Search</label>
+        <select class="s-input" id="defaultEngine">
+          <option value="google">🔍 Google</option>
+          <option value="duckduckgo">🦆 DuckDuckGo</option>
+          <option value="bing">🔵 Edge / Bing</option>
+          <option value="firefox">🦊 Firefox / Yahoo</option>
+          <option value="tor">🧅 Tor / DDG</option>
+          <option value="perplexity">✨ Perplexity</option>
+        </select>
+      </div>
+      <div class="s-group">
+        <label class="s-label">Show Seconds</label>
+        <div class="toggle-row">
+          <button class="tog"        data-val="on"  id="secOn">On</button>
+          <button class="tog active" data-val="off" id="secOff">Off</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── ADD LINK MODAL ──────────────────────────────── -->
+  <div class="overlay" id="overlay">
+    <div class="modal glass">
+      <h3 class="modal-title">Add Quick Link</h3>
+      <div class="modal-field">
+        <label>Emoji Icon</label>
+        <input type="text" id="linkIcon" placeholder="🌐" maxlength="2" class="s-input">
+      </div>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="linkName" placeholder="My Site" class="s-input">
+      </div>
+      <div class="modal-field">
+        <label>URL</label>
+        <input type="url" id="linkUrl" placeholder="https://example.com" class="s-input">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">Cancel</button>
+        <button class="btn-confirm" id="modalAdd">Add Link</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/themes.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- ── FIRST-TIME SETUP WIZARD ──────────────────────── -->
+  <div class="setup-overlay" id="setupWizard">
+    <div class="setup-box glass">
+      <div class="setup-logo">🕷️</div>
+      <h2 class="setup-title">Welcome to Spider Browser</h2>
+
+      <!-- Step 1: Your Name -->
+      <div class="wiz-step" data-step="1">
+        <p class="wiz-desc">Enter your name so Spider Browser can greet you:</p>
+        <input class="wiz-input" id="wizName" type="text" placeholder="e.g. Qazi Abdullah Khan" maxlength="40">
+        <button class="wiz-btn" id="wizNext1">Next →</button>
+      </div>
+
+      <!-- Step 2: Pick Theme -->
+      <div class="wiz-step" data-step="2" hidden>
+        <p class="wiz-desc">Choose your starting theme:</p>
+        <div class="wiz-themes">
+          <button class="wiz-theme-dot active" data-theme="aurora"   style="background:linear-gradient(135deg,#00ff88,#7c3aed)" title="Aurora"></button>
+          <button class="wiz-theme-dot" data-theme="matrix"   style="background:linear-gradient(135deg,#000,#00ff41)" title="Matrix"></button>
+          <button class="wiz-theme-dot" data-theme="galaxy"   style="background:linear-gradient(135deg,#0d0020,#7c3aed,#ec4899)" title="Galaxy"></button>
+          <button class="wiz-theme-dot" data-theme="neonCity" style="background:linear-gradient(135deg,#000008,#ff00aa,#00eeff)" title="Neon City"></button>
+          <button class="wiz-theme-dot" data-theme="midnight" style="background:linear-gradient(135deg,#000,#fff)" title="Midnight"></button>
+          <button class="wiz-theme-dot" data-theme="crimson"  style="background:linear-gradient(135deg,#000,#ff0044,#fff)" title="Crimson"></button>
+          <button class="wiz-theme-dot" data-theme="synthwave" style="background:linear-gradient(135deg,#07000f,#ff00cc,#ff9de2)" title="Synthwave"></button>
+          <button class="wiz-theme-dot" data-theme="lava"     style="background:linear-gradient(135deg,#0a0200,#ff6600,#ffcc00)" title="Lava"></button>
+        </div>
+        <button class="wiz-btn" id="wizNext2">Next →</button>
+      </div>
+
+      <!-- Step 3: Add Login Links -->
+      <div class="wiz-step" data-step="3" hidden>
+        <p class="wiz-desc">Add your login links (Gmail, social, work — anything you open daily):</p>
+        <div class="wiz-link-row">
+          <input class="wiz-input wiz-link-name" id="wizLinkName" type="text" placeholder="Name (e.g. Gmail)">
+          <input class="wiz-input wiz-link-url"  id="wizLinkUrl"  type="text" placeholder="URL (e.g. mail.google.com)">
+          <button class="wiz-btn-sm" id="wizAddLink">+ Add</button>
+        </div>
+        <p class="wiz-hint">You can always add more from the quick links below the search bar.</p>
+        <button class="wiz-btn wiz-finish-btn" id="wizFinish">🕷️ Launch Spider Browser</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

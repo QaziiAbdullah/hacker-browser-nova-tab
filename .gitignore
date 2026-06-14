@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Package output
+HackerBrowser-NovaTab.zip
+*.crx
+*.pem
+
+# Editor
+.vscode/
+*.suo
+*.user
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Claude memory
+.claude/
