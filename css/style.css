@@ -819,24 +819,28 @@ body { background: #000; color: var(--t1); }
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 3px 24px;
+  padding: 4px 24px;
   font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--accent);
-  background: rgba(0,255,136,0.03);
-  border-bottom: 1px solid rgba(0,255,136,0.08);
-  letter-spacing: 0.08em;
-  min-height: 24px;
+  font-size: 0.8rem;
+  background: rgba(0,255,136,0.04);
+  border-bottom: 1px solid rgba(0,255,136,0.12);
+  letter-spacing: 0.1em;
+  min-height: 26px;
   overflow: hidden;
   white-space: nowrap;
-  transition: opacity 0.5s;
 }
-.hs-prompt { color: rgba(0,255,136,0.5); flex-shrink: 0; }
-#hackerStrip { color: var(--accent); text-shadow: 0 0 8px rgba(0,255,136,0.4); }
+.hs-prompt { color: rgba(0,255,136,0.45); flex-shrink: 0; }
+#hackerStrip {
+  background: linear-gradient(90deg, var(--accent) 0%, #fff 60%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(0,255,136,0.55));
+}
 .hs-cur {
   color: var(--accent);
-  margin-left: 2px;
-  animation: hs-blink 0.75s step-end infinite;
+  margin-left: 1px;
+  animation: hs-blink 0.55s step-end infinite;
   flex-shrink: 0;
 }
 @keyframes hs-blink { 50% { opacity: 0; } }
@@ -848,26 +852,29 @@ body { background: #000; color: var(--t1); }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
   margin: 6px 0 2px;
-  min-height: 22px;
-  transition: opacity 0.5s;
+  min-height: 26px;
 }
 .motiv-text {
   font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--accent);
-  text-shadow: 0 0 12px var(--accent), 0 0 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  background: linear-gradient(90deg, var(--accent) 0%, #ffffff 55%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(0,255,136,0.6));
 }
 .motiv-cur {
   color: var(--accent);
-  font-size: 0.85rem;
+  font-size: 1rem;
+  font-weight: 700;
   opacity: 1;
-  animation: motiv-blink 0.6s step-end infinite;
-  text-shadow: 0 0 10px var(--accent);
+  animation: motiv-blink 0.5s step-end infinite;
+  filter: drop-shadow(0 0 6px var(--accent));
 }
 @keyframes motiv-blink { 50% { opacity: 0; } }
 

@@ -78,51 +78,51 @@
     { key: 'yandex',     name: 'Yandex',     icon: '🔶', search: q => `https://yandex.com/search/?text=${encodeURIComponent(q)}` },
   ];
 
-  // Hacker typewriter phrases
+  // Typewriter phrases
   const MOTIVATIONAL_PHRASES = [
-    'YOUR POTENTIAL IS LIMITLESS — START NOW',
-    'CODE YOUR DREAMS. SHIP YOUR DESTINY.',
-    'EVERY EXPERT WAS ONCE A BEGINNER',
-    'DISCIPLINE IS THE BRIDGE BETWEEN GOALS AND ACHIEVEMENT',
-    'THE BEST TIME TO START WAS YESTERDAY. THE NEXT BEST IS NOW.',
-    'GREAT THINGS NEVER CAME FROM COMFORT ZONES',
-    'PUSH HARDER THAN YESTERDAY IF YOU WANT A DIFFERENT TOMORROW',
-    'YOUR ONLY LIMIT IS YOUR MIND',
-    'FOCUS. EXECUTE. DOMINATE.',
-    'SUCCESS IS THE SUM OF SMALL EFFORTS REPEATED DAILY',
-    'BUILD SOMETHING THE WORLD HAS NEVER SEEN',
-    'STOP WAITING FOR PERFECT — SHIP IT',
-    'YOU ARE ONE DECISION AWAY FROM A COMPLETELY DIFFERENT LIFE',
-    'DREAM BIG. WORK HARD. STAY HUMBLE.',
-    'THE HARDER YOU WORK, THE LUCKIER YOU GET',
-    'DON\'T STOP WHEN YOU\'RE TIRED — STOP WHEN YOU\'RE DONE',
-    'TURN YOUR OBSTACLES INTO OPPORTUNITIES',
-    'MAKE TODAY SO AWESOME THAT YESTERDAY IS JEALOUS',
-    'ONE DAY OR DAY ONE — YOU DECIDE',
-    'INNOVATE. ITERATE. DOMINATE.',
+    'CODE. BUILD. SHIP.',
+    'YOUR FUTURE IS WRITTEN IN CODE.',
+    'MAKE IT HAPPEN — RIGHT NOW.',
+    'FOCUS BEATS TALENT EVERY TIME.',
+    'ONE MORE HOUR. ONE MORE FEATURE.',
+    'BUILD WHAT DOESN\'T EXIST YET.',
+    'STAY HUNGRY. STAY DANGEROUS.',
+    'SHIP FAST. LEARN FASTER.',
+    'YOUR ONLY COMPETITION IS YESTERDAY.',
+    'GREAT WORK REQUIRES GREAT OBSESSION.',
+    'ITERATE UNTIL IT\'S LEGENDARY.',
+    'BREAK LIMITS. BUILD EMPIRES.',
+    'EXECUTE NOW. PERFECT LATER.',
+    'SILENCE THE DOUBTERS WITH RESULTS.',
+    'DREAM IN LINES OF CODE.',
+    'BUILT DIFFERENT. THINK DIFFERENT.',
+    'ONE COMMIT AT A TIME.',
+    'GENIUS IS DISCIPLINE IN DISGUISE.',
+    'BORN TO BUILD.',
+    'INNOVATE. DOMINATE. REPEAT.',
   ];
 
   const HACKER_PHRASES = [
-    'INITIALIZING SECURE SHELL...',
-    'SCANNING NETWORK PERIMETER...',
-    'ENCRYPTING DATA STREAM AES-256...',
-    'ACCESSING MAINFRAME DATABASE...',
-    'BYPASSING FIREWALL PROTOCOLS...',
-    'ESTABLISHING ENCRYPTED VPN TUNNEL...',
-    'DECRYPTING CIPHER TEXT [RSA-4096]...',
-    'RUNNING SYSTEM DIAGNOSTICS... OK',
-    'MONITORING NETWORK TRAFFIC ANOMALIES...',
-    'COMPILING KERNEL MODULE v5.15.0...',
-    'TRACING ROUTE TO TARGET SERVER...',
-    'DECODING BINARY SEQUENCE 01100011...',
-    'AUTHENTICATION SUCCESSFUL ✓',
-    'UPLOADING TO SECURE CLOUD SERVER...',
-    'SYSTEM STATUS: ALL SYSTEMS NOMINAL',
-    'LAUNCHING EXPLOIT FRAMEWORK...',
-    'PRIVILEGE ESCALATION COMPLETE...',
-    'WIPING FORENSIC TRACES...',
-    'EXFILTRATING ENCRYPTED PAYLOAD...',
-    'CONNECTION SECURED — STAY ANONYMOUS',
+    'SYSTEM ONLINE ✓',
+    'SSH TUNNEL ACTIVE...',
+    'FIREWALL: BYPASSED ✓',
+    'AES-256 ENCRYPTION: OK',
+    'VPN: CONNECTED ✓',
+    'SCANNING PORTS 80, 443...',
+    'AUTH TOKEN VERIFIED ✓',
+    'PAYLOAD ENCRYPTED...',
+    'PROXY CHAIN: 7 HOPS',
+    'ZERO TRACE MODE: ON',
+    'KERNEL v5.15.0 LOADED',
+    'EXPLOIT FRAMEWORK READY',
+    'NETWORK ANOMALY DETECTED!',
+    'PRIVILEGE ESCALATED ✓',
+    'GHOST PROTOCOL ACTIVE',
+    'ALL SYSTEMS NOMINAL ✓',
+    'DIGITAL GHOST MODE: ON',
+    'DEEP WEB ACCESS: GRANTED',
+    'TRACING ROOT SERVER...',
+    'OPERATION: INITIATED ▶',
   ];
 
   // Robot SVG skins
@@ -445,29 +445,29 @@
     if (!el) return;
     let pi = Math.floor(Math.random() * HACKER_PHRASES.length);
     let ci = 0;
-    let typing = true;
+    let erasing = false;
 
     function step() {
       const phrase = HACKER_PHRASES[pi];
-      if (typing) {
-        el.textContent = phrase.substring(0, ci++);
-        if (ci <= phrase.length) {
-          setTimeout(step, 42 + Math.random() * 35);
+      if (!erasing) {
+        // Type forward — 22–38 ms per char
+        el.textContent = phrase.substring(0, ++ci);
+        if (ci < phrase.length) {
+          setTimeout(step, 22 + Math.random() * 16);
         } else {
-          typing = false;
-          setTimeout(step, 2200);
+          erasing = true;
+          setTimeout(step, 1800); // hold finished phrase
         }
       } else {
-        // Fade strip out
-        const strip = el.closest('.hacker-strip');
-        if (strip) strip.style.opacity = '0';
-        setTimeout(() => {
+        // Backspace erase — 14 ms per char
+        if (ci > 0) {
+          el.textContent = phrase.substring(0, --ci);
+          setTimeout(step, 14);
+        } else {
+          erasing = false;
           pi = (pi + 1) % HACKER_PHRASES.length;
-          ci = 0; typing = true;
-          el.textContent = '';
-          if (strip) strip.style.opacity = '1';
-          setTimeout(step, 180);
-        }, 500);
+          setTimeout(step, 260); // pause before next
+        }
       }
     }
     step();
@@ -479,28 +479,29 @@
     if (!el) return;
     let pi = Math.floor(Math.random() * MOTIVATIONAL_PHRASES.length);
     let ci = 0;
-    let typing = true;
+    let erasing = false;
 
     function step() {
       const phrase = MOTIVATIONAL_PHRASES[pi];
-      if (typing) {
-        el.textContent = phrase.substring(0, ci++);
-        if (ci <= phrase.length) {
-          setTimeout(step, 38 + Math.random() * 30);
+      if (!erasing) {
+        // Type forward — 26–44 ms per char
+        el.textContent = phrase.substring(0, ++ci);
+        if (ci < phrase.length) {
+          setTimeout(step, 26 + Math.random() * 18);
         } else {
-          typing = false;
-          setTimeout(step, 2800);
+          erasing = true;
+          setTimeout(step, 2000); // hold finished phrase
         }
       } else {
-        const strip = el.closest('.motiv-strip');
-        if (strip) strip.style.opacity = '0';
-        setTimeout(() => {
+        // Backspace erase — 12 ms per char
+        if (ci > 0) {
+          el.textContent = phrase.substring(0, --ci);
+          setTimeout(step, 12);
+        } else {
+          erasing = false;
           pi = (pi + 1) % MOTIVATIONAL_PHRASES.length;
-          ci = 0; typing = true;
-          el.textContent = '';
-          if (strip) strip.style.opacity = '1';
-          setTimeout(step, 200);
-        }, 500);
+          setTimeout(step, 300); // pause before next
+        }
       }
     }
     step();
